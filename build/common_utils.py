@@ -197,6 +197,15 @@ class CommonUtils:
                 self._transactionType = "N"
                 self._transactionAmount = Decimal(val)
 
+        # Set defaults for undefined items that are mode specific
+        if self._mode == 'ATM':
+            if self._cardFilename is None:
+                self._cardFilename = self._account + ".card"
+
+        if self._mode == 'Bank':
+            if self._authFilename is None:
+                self._authFilename = "bank.auth"
+
     def get_authfilename(self):
         return self._authFilename
 
