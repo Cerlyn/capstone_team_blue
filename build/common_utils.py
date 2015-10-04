@@ -13,7 +13,7 @@ class CommonUtils:
         self._account = None
         self._transactionType = None
         self._transactionAmount = None
-        self._authFilename = None
+        self._authFilename = "bank.auth"
         self._cardFilename = None
 
         if mode not in ('ATM', 'Bank'):
@@ -201,10 +201,6 @@ class CommonUtils:
         if self._mode == 'ATM':
             if self._cardFilename is None:
                 self._cardFilename = self._account + ".card"
-
-        if self._mode == 'Bank':
-            if self._authFilename is None:
-                self._authFilename = "bank.auth"
 
     def get_authfilename(self):
         return self._authFilename
