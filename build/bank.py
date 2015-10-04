@@ -24,7 +24,7 @@ class Bank:
         self._tlsprivatekey = None
 
     def setup_ca(self):
-        self._certauthorityprivatekey = SSL.PKey()
+        self._certauthorityprivatekey = crypto.PKey()
         # Key sizes based on survey of bank web sites & CA Authorities
         # Code based on http://docs.ganeti.org/ganeti/2.9/html/design-x509-ca.html
         self._certauthorityprivatekey.generate_key(crypto.TYPE_RSA, 2048)
@@ -47,7 +47,7 @@ class Bank:
         self._certauthoritynextserial = 2
 
     def setup_atmcrypto(self):
-        atmkey = SSL.PKey()
+        atmkey = crypto.PKey()
         atmkey.generate_key(crypto.TYPE_RSA, 2048)
 
         certreq = crypto.X509Req()
@@ -69,7 +69,7 @@ class Bank:
         self._certauthoritynextserial = self._certauthoritynextserial + 1
 
     def setup_webcrypto(self):
-        self._tlsprivatekey = SSL.PKey()
+        self._tlsprivatekey = crypto.PKey()
         self._tlsprivatekey.generate_key(crypto.TYPE_RSA, 2048)
 
         certreq = crypto.X509Req()
