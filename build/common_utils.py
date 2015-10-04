@@ -14,6 +14,7 @@ class CommonUtils:
         self._transactionType = None
         self._transactionAmount = None
         self._authFilename = None
+        self._cardFilename = None
 
         if mode not in ('ATM', 'Bank'):
             self.error_exit("common_utils initialized in unknown mode")
@@ -152,7 +153,7 @@ class CommonUtils:
                 if (self._port > 65535) or (self._port < 1024):
                     self.error_exit("Port out of range")
 
-            if opt == '-s':  # Auth file
+            elif opt == '-s':  # Auth file
                 if self.valid_filenamestr(val) == False:
                     self.error_exit("Auth file is not a valid filename")
 
@@ -168,6 +169,12 @@ class CommonUtils:
                 if self.valid_accountstr(val) == False:
                     self.error_exit("Invalid account name")
                 self._account = val
+
+            elif opt == '-c':  # Card file
+                if self.valid_filenamestr(val) == False:
+                    self.error_exit("Card file is not a valid filename")
+
+                self._cardFilename = val
 
             elif opt == '-g':  # Get Balance
                 self._transactionType = "G"
