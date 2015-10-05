@@ -9,6 +9,8 @@ class CommonUtils:
     _MAXINPUTBALANCE = Decimal(4294967295.99)
 
     def __init__(self, mode):
+        # Parameters stored in CommonUtils are from the command-line
+        # and for the Bank, may not be for the current transaction
         self._port = 3000
         self._account = None
         self._transactionType = None
