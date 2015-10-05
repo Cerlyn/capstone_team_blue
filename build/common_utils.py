@@ -219,26 +219,3 @@ class CommonUtils:
 
     def get_transactiontype(self):
         return self._transactionType
-
-    # For bank use
-    # Returns if successful instead of crashing the program
-    def set_account(self, account):
-        if self.valid_accountstr(account):
-            self._account = account
-            return True
-        else:
-            return False
-
-    def set_transactionamount(self, amount):
-        if self.valid_currency(amount) == True:
-            self._transactionAmount = Decimal(amount)
-            return True
-        else:
-            return False
-
-    def set_transactiontype(self, transtype):
-        if transtype in ('G', 'D', 'W', 'N'):
-            self._transactionType = transtype
-            return True
-        else:
-            return False
