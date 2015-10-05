@@ -33,8 +33,8 @@ signal.signal(signal.SIGTERM, SIGTERMhandler)
 
 class TLSHandler(BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server):
-        BaseHTTPRequestHandler.__init__(self, request, client_address, server)
         self.timeout = 10
+        BaseHTTPRequestHandler.__init__(self, request, client_address, server)
 
     def do_GET(self):
         self.connection.settimeout(10)
@@ -57,7 +57,10 @@ class TLSHTTPServer(HTTPServer, ThreadingMixIn):
             self.server_activate()
 
         def run(self):
-            self.serve_forever()
+            try:
+                self.serve_forever()
+            except KeyboardInterrupt:
+                pass
 
 
 class Bank:
