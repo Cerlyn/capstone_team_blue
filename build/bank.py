@@ -172,7 +172,10 @@ class Bank:
         self.setup_atmcrypto()
         # FIXME: NEED TO WRITE ATM TICKET TO FILE
         # Start mutlithreading
-        self.start_webserver()
+        try:
+            self.start_webserver()
+        except socket.error as e:
+            self.error_exit(str(e))
 
 
 if __name__ == "__main__":
