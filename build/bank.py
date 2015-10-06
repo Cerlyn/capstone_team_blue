@@ -42,7 +42,7 @@ class TLSHandler(BaseHTTPRequestHandler):
         # BaseHTTPRequestHandler.log_message(self, logformat, *args)
         return
 
-    # Override error logger to provide spec-required error message
+    # Override default error logger to provide spec-required error message
     def log_error(self, logformat, *args):
         # BaseHTTPRequestHandler.log_error(self, logformat, *args)
         sys.stdout.write("protocol_error\n")
@@ -59,7 +59,8 @@ class TLSHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         self.connection.settimeout(10)
-        # Parse GET headers, error out if invalid
+        # Parse URL query parameters, error out if invalid
+        # FIXME: Move everything to POST once ATM-side implemented
         try:
             urlparts = urlparse.urlparse(self.path)
             path = urlparts.path
