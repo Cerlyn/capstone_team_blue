@@ -37,13 +37,25 @@ class TLSHandler(BaseHTTPRequestHandler):
         self.timeout = 10
         BaseHTTPRequestHandler.__init__(self, request, client_address, server)
 
+    # Do not do default logging of messages to STDERR
+    def log_message(self, logformat, *args):
+        # BaseHTTPRequestHandler.log_message(self, logformat, *args)
+        return
+
+    # Override error logger to provide spec-required error message
+    def log_error(self, logformat, *args):
+        # BaseHTTPRequestHandler.log_error(self, logformat, *args)
+        sys.stdout.write("protocol_error\n")
+        sys.stdout.flush()
+
     def fail_request(self, logtext):
         self.send_response(500)
         self.send_header("Content-type", "text/plain")
         self.send_header("Pragma", "no-cache")
         self.send_header("Content-control", "no-cache")
         self.end_headers()
-        self.wfile.write("Protocol_error")
+        self.wfile.write("request_not_handled\n")
+        self.log_error('failed_request')
 
     def do_GET(self):
         self.connection.settimeout(10)
@@ -193,7 +205,7 @@ class Bank:
         tlsServer = TLSHTTPServer(self._common_utils.get_ipaddress(),
                                   self._common_utils.get_ipport(),
                                   self._tlscert, self._tlsprivatekey)
-        sys.stdout.write("Ready\n")  # FIXME: should be 'created\n'
+        sys.stdout.write("created\n")  # FIXME: should be 'created\n'
         sys.stdout.flush()
         tlsServer.run()
 
