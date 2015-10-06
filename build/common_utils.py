@@ -1,7 +1,8 @@
-import sys
-import getopt
-import re
 from decimal import Decimal
+import getopt
+from os import path
+import re
+import sys
 
 
 class CommonUtils:
@@ -204,6 +205,21 @@ class CommonUtils:
         if self._mode == 'ATM':
             if self._cardFilename is None:
                 self._cardFilename = self._account + ".card"
+
+            if (path.isfile(self._cardFilename) == False) \
+                    and self._transactionType != "N":
+                self.error_exit("Card file not found")
+
+            if (self._transactionType == "N") and \
+                    path.isfile(self._cardFilename) == True:
+                self.error_exit("Card file already exists")
+
+            if (path.isfile(self._authFilename) == False):
+                self.error_exit("Auth file not found")
+
+        if self._mode == 'Bank':
+            if path.isfile(self._authFilename):
+                self.error_exit("Auth file already exists")
 
     def get_authfilename(self):
         return self._authFilename
