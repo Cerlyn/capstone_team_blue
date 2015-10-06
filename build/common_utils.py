@@ -5,9 +5,6 @@ from decimal import Decimal
 
 
 class CommonUtils:
-    # Maximum amount a user may specify to use during a transaction
-    _MAXINPUTBALANCE = Decimal(4294967295.99)
-
     def __init__(self, mode):
         # Parameters stored in CommonUtils are from the command-line
         # and for the Bank, may not be for the current transaction
@@ -58,11 +55,15 @@ class CommonUtils:
         return True
 
     # Cannot be static because it references a variable
-    def valid_currency(self, test_amount):
+    @staticmethod
+    def valid_currency(test_amount):
+        # Maximum amount a user may specify to use during a transaction
+        _MAXINPUTBALANCE = Decimal(4294967295.99)
+
         if re.match('([0-9]|[1-9][0-9]{0,9})\.\d\d$', test_amount) == None:
             return False
 
-        if Decimal(test_amount) > self._MAXINPUTBALANCE:
+        if Decimal(test_amount) > _MAXINPUTBALANCE:
             return False
 
         return True
