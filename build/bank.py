@@ -10,6 +10,7 @@ import socket
 import signal
 import tempfile
 import ssl
+import urlparse
 from OpenSSL import crypto
 from common_utils import CommonUtils
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
@@ -36,12 +37,42 @@ class TLSHandler(BaseHTTPRequestHandler):
         self.timeout = 10
         BaseHTTPRequestHandler.__init__(self, request, client_address, server)
 
+    def fail_request(self, logtext):
+        self.send_response(500)
+        self.send_header("Content-type", "text/plain")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Content-control", "no-cache")
+        self.end_headers()
+        self.wfile.write("Protocol_error")
+
     def do_GET(self):
         self.connection.settimeout(10)
+        # Parse GET headers, error out if invalid
+        try:
+            urlparts = urlparse.urlparse(self.path)
+            path = urlparts.path
+            if path != "/atm.cgi":
+                raise Exception("Invalid path")
+            query = urlparts.query
+            queryitems = urlparse.parse_qs(query)
+        except Exception:
+            self.fail_request("PARSE EXCEPTION")
+            return
+
+        # Validate supplied parameters/combinations (query string)
+
+        # FIXME: Parse POST parameters if necessary
+        # Validate supplied parameters/combinations (POST items)
+
+        # FIXME: Do required action instead of just responding back
         self.send_response(200)
         self.send_header("Content-type", "text/plain")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Content-control", "no-cache")
         self.end_headers()
         self.wfile.write("Hello World\n")
+        self.wfile.write(path)
+
 
 
 class TLSHTTPServer(HTTPServer, ThreadingMixIn):
