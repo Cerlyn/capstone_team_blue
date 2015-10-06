@@ -11,6 +11,7 @@ import signal
 import tempfile
 import ssl
 import urlparse
+from os import path
 from OpenSSL import crypto
 from common_utils import CommonUtils
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
@@ -68,13 +69,23 @@ class TLSHandler(BaseHTTPRequestHandler):
                 raise Exception("Invalid path")
             query = urlparts.query
             queryitems = urlparse.parse_qs(query)
+            action = queryitems['action'][0]
+
+            if action not in ('new', 'balance', 'deposit', 'withdraw'):
+                raise Exception("Invalid action")
+
+            if (action == 'balance') and ('amount' in queryitems):
+                raise Exception("Invalid parameters")
+
+            if CommonUtils.valid_currency(queryitems['amount'][0]) == False:
+                raise Exception("Invalid parameters")
+            # FIXME: Add card verification
+
         except Exception:
             self.fail_request("PARSE EXCEPTION")
             return
 
-        # Validate supplied parameters/combinations (query string)
-
-        # FIXME: Parse POST parameters if necessary
+        # FIXME: Parse POST parameters
         # Validate supplied parameters/combinations (POST items)
 
         # FIXME: Do required action instead of just responding back
@@ -85,7 +96,6 @@ class TLSHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write("Hello World\n")
         self.wfile.write(path)
-
 
 
 class TLSHTTPServer(HTTPServer, ThreadingMixIn):
@@ -150,21 +160,33 @@ class Bank:
 
         certreq = crypto.X509Req()
         certreq.get_subject().CN = "atm-machine.bank.example.com"
-        certreq.set_pubkey(self._tlsprivatekey)
-        certreq.sign(self._tlsprivatekey, "sha256")
+        certreq.set_pubkey(atmkey)
+        certreq.sign(atmkey, "sha256")
 
-        self._tlscert = crypto.X509()
-        self._tlscert.set_subject(certreq.get_subject())
-        self._tlscert.set_serial_number(self._certauthoritynextserial)
-        self._tlscert.gmtime_adj_notBefore(0)
-        self._tlscert.gmtime_adj_notAfter(86400*365*3)  # under CA's lifetime
-        self._tlscert.set_pubkey(certreq.get_pubkey())
-        self._tlscert.add_extensions([
+        atmcert = crypto.X509()
+        atmcert.set_subject(certreq.get_subject())
+        atmcert.set_serial_number(self._certauthoritynextserial)
+        atmcert.set_issuer(self._certauthority.get_subject())
+        atmcert.gmtime_adj_notBefore(0)
+        atmcert.gmtime_adj_notAfter(86400*365*3)  # under CA's lifetime
+        atmcert.set_pubkey(certreq.get_pubkey())
+        atmcert.add_extensions([
             crypto.X509Extension("basicConstraints", True, "CA:FALSE"),
             crypto.X509ExtensionType("extendedKeyUsage", True, "clientAuth"),
         ])
-        self._tlscert.sign(self._certauthorityprivatekey, "sha256")
+        atmcert.sign(self._certauthorityprivatekey, "sha256")
         self._certauthoritynextserial = self._certauthoritynextserial + 1
+
+        if path.exists(self._common_utils.get_authfilename()):
+            self.error_exit('Auth file already exists (race check)')
+        outfile = file(self._common_utils.get_authfilename(), 'w')
+        outfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM,
+                                             atmkey))
+        outfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM,
+                                              atmcert))
+        outfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM,
+                                              self._certauthority))
+        outfile.close()
 
     def setup_webcrypto(self):
         global TLStempfile
@@ -206,7 +228,10 @@ class Bank:
         tlsServer = TLSHTTPServer(self._common_utils.get_ipaddress(),
                                   self._common_utils.get_ipport(),
                                   self._tlscert, self._tlsprivatekey)
-        sys.stdout.write("created\n")  # FIXME: should be 'created\n'
+        # Since we infinitely loop in the webserver
+        # Notify that the card was created as late as possible to avoid races
+        # with the test infrastructure
+        sys.stdout.write("created\n")
         sys.stdout.flush()
         tlsServer.run()
 
@@ -214,6 +239,7 @@ class Bank:
         self.setup_ca()
         self.setup_webcrypto()
         self.setup_atmcrypto()
+
         # FIXME: NEED TO WRITE ATM TICKET TO FILE
         # Start mutlithreading
         try:
