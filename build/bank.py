@@ -61,7 +61,10 @@ class Vault():
             raise e
         finally:
             BANKVAULT_THREADLOCK.release()
-        return newcard
+        result = '{{"initial_balance": {0!s},"account": "{1}"}}\n{2}\n'.format(
+                                                            Decimal(balance),
+                                                            user, str(newcard))
+        return result
 
     def getbalance(self, user, card):
         global BANKVAULT_THREADLOCK
@@ -78,7 +81,12 @@ class Vault():
             raise e
         finally:
             BANKVAULT_THREADLOCK.release()
-        return balance
+        result = '{{"balance": {0!s},"account": "{1}"}}\n'.format(
+                                                            Decimal(balance),
+                                                            user)
+        return result
+
+
 
     def deposit(self, user, card, amount):
         global BANKVAULT_THREADLOCK
@@ -95,6 +103,11 @@ class Vault():
             raise e
         finally:
             BANKVAULT_THREADLOCK.release()
+        result = '{{"deposit": {0!s},"account": "{1}"}}\n'.format(
+                                                            Decimal(amount),
+                                                            user)
+        return result
+
 
     def withdraw(self, user, card, amount):
         global BANKVAULT_THREADLOCK
@@ -114,6 +127,10 @@ class Vault():
             raise e
         finally:
             BANKVAULT_THREADLOCK.release()
+        result = '{{"withdraw": {0!s},"account": "{1}"}}\n'.format(
+                                                            Decimal(amount),
+                                                            user)
+        return result
 
 
 class TLSHandler(BaseHTTPRequestHandler):
