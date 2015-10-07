@@ -208,7 +208,7 @@ class TLSHandler(BaseHTTPRequestHandler):
         self.wfile.write(path)
 
 
-class TLSHTTPServer(HTTPServer, ThreadingMixIn):
+class TLSHTTPServer(HTTPServer):
         def __init__(self, address, port, tlscertificate, tlsprivkey):
             BaseServer.__init__(self, (address, port), TLSHandler)
             self.socket = ssl.SSLSocket(socket.socket(self.address_family,
@@ -225,6 +225,10 @@ class TLSHTTPServer(HTTPServer, ThreadingMixIn):
                 self.serve_forever()
             except KeyboardInterrupt:
                 pass
+
+
+class Threading_TLSHTTPServer(ThreadingMixIn, TLSHTTPServer):
+    pass
 
 
 class Bank:
@@ -335,9 +339,9 @@ class Bank:
         # Closing the file/program will destroy this temporary file
 
     def start_webserver(self):
-        tlsServer = TLSHTTPServer(self._common_utils.get_ipaddress(),
-                                  self._common_utils.get_ipport(),
-                                  self._tlscert, self._tlsprivatekey)
+        tlsServer = Threading_TLSHTTPServer(self._common_utils.get_ipaddress(),
+                                            self._common_utils.get_ipport(),
+                                            self._tlscert, self._tlsprivatekey)
         # Since we infinitely loop in the webserver
         # Notify that the card was created as late as possible to avoid races
         # with the test infrastructure
