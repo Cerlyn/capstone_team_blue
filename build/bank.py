@@ -5,19 +5,24 @@
 # Coursera Capstone
 # BIBIFI Fall 2015
 
-import sys
+import ssl
 import socket
 import signal
+import sys
 import tempfile
-import ssl
+import threading
 import urlparse
 from os import path
 from OpenSSL import crypto
 from common_utils import CommonUtils
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn, BaseServer
+from decimal import Decimal
+from random import SystemRandom
 
 TLStempfile = None
+BANKVAULT = None
+BANKVAULT_THREADLOCK = None
 
 
 def SIGTERMhandler(signum, frame):
@@ -31,6 +36,61 @@ def SIGTERMhandler(signum, frame):
         sys.exit(0)
 
 signal.signal(signal.SIGTERM, SIGTERMhandler)
+
+
+class Vault():
+    def __init__(self):
+        self._accounts = {}
+
+    def adduser(self, user, balance):
+        if user not in self._accounts:
+            raise Exception('User exists')
+        if CommonUtils.valid_accountstr(user) == False:
+            raise Exception('Invalid user')
+        if CommonUtils.valid_currency(balance) == False:
+            raise Exception('Invalid balance')
+        BANKVAULT_THREADLOCK.acquire()
+        self._accounts[user] = {}
+        self._accounts[user]['balance'] = Decimal(balance)
+        newcard = SystemRandom.random()
+        self._accounts[user]['card'] = newcard
+        BANKVAULT_THREADLOCK.release()
+        return newcard
+
+    def getbalance(self, user, card):
+        BANKVAULT_THREADLOCK.acquire()
+        if user not in self._accounts:
+            raise Exception('Authentication failure')
+        if self._accounts[user]['card'] != card:
+            raise Exception('Authentication failure')
+
+        balance = self._accounts['balance']
+        BANKVAULT_THREADLOCK.release()
+        return balance
+
+    def deposit(self, user, card, amount):
+        BANKVAULT_THREADLOCK.acquire()
+        if user not in self._accounts:
+            raise Exception('Authentication failure')
+        if self._accounts[user]['card'] != card:
+            raise Exception('Authentication failure')
+
+        self._accounts[user]['balance'] = self._accounts[user]['balance'] + \
+            Decimal(amount)
+        BANKVAULT_THREADLOCK.release()
+
+    def withrdaw(self, user, card, amount):
+        BANKVAULT_THREADLOCK.acquire()
+        if user not in self._accounts:
+            raise Exception('Authentication failure')
+        if self._accounts[user]['card'] != card:
+            raise Exception('Authentication failure')
+
+        decimalamount = Decimal(amount)
+        if (self._accounts[user]['balance'] - decimalamount) < Decimal(0):
+            raise Exception('Insufficient funds')
+        self._accounts[user]['balance'] = self._accounts[user]['balance'] - \
+            decimalamount
 
 
 class TLSHandler(BaseHTTPRequestHandler):
@@ -236,6 +296,10 @@ class Bank:
         tlsServer.run()
 
     def run(self):
+        global BANKVAULT
+        global BANKVAULT_THREADLOCK
+        BANKVAULT = Vault()
+        BANKVAULT_THREADLOCK = threading.Lock()
         self.setup_ca()
         self.setup_webcrypto()
         self.setup_atmcrypto()
