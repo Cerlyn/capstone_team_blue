@@ -227,6 +227,9 @@ class CommonUtils:
     def get_account(self):
         return self._account
 
+    def get_cardfilename(self):
+        return self._cardFilename
+
     def get_ipaddress(self):
         return self._ipaddr
 
