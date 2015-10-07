@@ -222,7 +222,8 @@ class TLSHandler(BaseHTTPRequestHandler):
         self.send_header("Content-control", "no-cache")
         self.end_headers()
         self.wfile.write(response_to_client)
-        self.wfile.write(path)
+        sys.stdout.write(response_to_client.split("\n")[0] + "\n")
+        sys.stdout.flush()
 
 
 class TLSHTTPServer(HTTPServer):
