@@ -59,7 +59,8 @@ class CommonUtils:
     @staticmethod
     def valid_currency(test_amount):
         # Maximum amount a user may specify to use during a transaction
-        _MAXINPUTBALANCE = Decimal(4294967295.99)
+        # Need string quotes here or it ends up 4294967295.9899997711181640625
+        _MAXINPUTBALANCE = Decimal('4294967295.99')
 
         if re.match('([0-9]|[1-9][0-9]{0,9})\.\d\d$', test_amount) == None:
             return False
@@ -67,6 +68,8 @@ class CommonUtils:
         if Decimal(test_amount) > _MAXINPUTBALANCE:
             return False
 
+        if Decimal(test_amount) <= 0.00:
+            return False
         return True
 
     @staticmethod
@@ -210,9 +213,11 @@ class CommonUtils:
                     and self._transactionType != "N":
                 self.error_exit("Card file not found")
 
-            if (self._transactionType == "N") and \
-                    path.isfile(self._cardFilename) == True:
-                self.error_exit("Card file already exists")
+            if (self._transactionType == "N"):
+                if path.isfile(self._cardFilename) == True:
+                    self.error_exit("Card file already exists")
+                if self._transactionAmount < 10.00:
+                    self.error_exit("New balance must be >= 10.00")
 
             if (path.isfile(self._authFilename) == False):
                 self.error_exit("Auth file not found")
