@@ -137,13 +137,16 @@ class TLSHandler(BaseHTTPRequestHandler):
         self.send_header("Pragma", "no-cache")
         self.send_header("Content-control", "no-cache")
         self.end_headers()
-        self.wfile.write("request_not_handled\n")
-        self.log_error('failed_request')
+        self.wfile.write("request_failed\n")
+        self.log_error('request_failed')
 
     def do_GET(self):
         self.connection.settimeout(10)
         # Parse URL query parameters, error out if invalid
         # FIXME: Move everything to POST once ATM-side implemented
+
+        response_to_client = ""
+
         try:
             urlparts = urlparse.urlparse(self.path)
             path = urlparts.path
@@ -159,12 +162,33 @@ class TLSHandler(BaseHTTPRequestHandler):
             if (action == 'balance') and ('amount' in queryitems):
                 raise Exception("Invalid parameters")
 
-            if CommonUtils.valid_currency(queryitems['amount'][0]) == False:
+            account = queryitems['account'][0]
+            if CommonUtils.valid_accountstr(account) == False:
                 raise Exception("Invalid parameters")
-            # FIXME: Add card verification
+
+            amount = queryitems['amount'][0]
+            if CommonUtils.valid_currency(amount) == False:
+                raise Exception("Invalid parameters")
+
+            card = None
+            if (action != 'new') and ((card is None) or (card == "")):
+                card = queryitems['card'][0]
+                raise Exception("Invalid parameters")
+            elif (action == 'new') and (card in queryitems):
+                raise Exception("Invalid parameters")
+
+            # After validation completes above, process the request
+            if action == 'new':
+                response_to_client = BANKVAULT.adduser(account, amount)
+            elif action == 'balance':
+                response_to_client = BANKVAULT.getbalance(account, card)
+            elif action == 'deposit':
+                response_to_client = BANKVAULT.deposit(account, card, amount)
+            elif action == 'withdraw':
+                response_to_client = BANKVAULT.withdraw(account, card, amount)
 
         except Exception:
-            self.fail_request("PARSE EXCEPTION")
+            self.fail_request("REQUEST FAILED")
             return
 
         # FIXME: Parse POST parameters
@@ -176,7 +200,7 @@ class TLSHandler(BaseHTTPRequestHandler):
         self.send_header("Pragma", "no-cache")
         self.send_header("Content-control", "no-cache")
         self.end_headers()
-        self.wfile.write("Hello World\n")
+        self.wfile.write(response_to_client)
         self.wfile.write(path)
 
 
