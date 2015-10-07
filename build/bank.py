@@ -44,6 +44,7 @@ class Vault():
         self._randgen = SystemRandom()
 
     def adduser(self, user, balance):
+        global BANKVAULT_THREADLOCK
         if user not in self._accounts:
             raise Exception('User exists')
         if CommonUtils.valid_accountstr(user) == False:
@@ -59,6 +60,7 @@ class Vault():
         return newcard
 
     def getbalance(self, user, card):
+        global BANKVAULT_THREADLOCK
         BANKVAULT_THREADLOCK.acquire()
         if user not in self._accounts:
             raise Exception('Authentication failure')
@@ -70,6 +72,7 @@ class Vault():
         return balance
 
     def deposit(self, user, card, amount):
+        global BANKVAULT_THREADLOCK
         BANKVAULT_THREADLOCK.acquire()
         if user not in self._accounts:
             raise Exception('Authentication failure')
@@ -80,7 +83,8 @@ class Vault():
             Decimal(amount)
         BANKVAULT_THREADLOCK.release()
 
-    def withrdaw(self, user, card, amount):
+    def withdraw(self, user, card, amount):
+        global BANKVAULT_THREADLOCK
         BANKVAULT_THREADLOCK.acquire()
         if user not in self._accounts:
             raise Exception('Authentication failure')
