@@ -52,50 +52,67 @@ class Vault():
         if CommonUtils.valid_currency(balance) == False:
             raise Exception('Invalid balance')
         BANKVAULT_THREADLOCK.acquire()
-        self._accounts[user] = {}
-        self._accounts[user]['balance'] = Decimal(balance)
-        newcard = self._randgen.randint(1, sys.maxint)
-        self._accounts[user]['card'] = newcard
-        BANKVAULT_THREADLOCK.release()
+        try:
+            self._accounts[user] = {}
+            self._accounts[user]['balance'] = Decimal(balance)
+            newcard = self._randgen.randint(1, sys.maxint)
+            self._accounts[user]['card'] = newcard
+        except Exception as e:
+            raise e
+        finally:
+            BANKVAULT_THREADLOCK.release()
         return newcard
 
     def getbalance(self, user, card):
         global BANKVAULT_THREADLOCK
         BANKVAULT_THREADLOCK.acquire()
-        if user not in self._accounts:
-            raise Exception('Authentication failure')
-        if self._accounts[user]['card'] != card:
-            raise Exception('Authentication failure')
+        try:
+            if user not in self._accounts:
+                raise Exception('Authentication failure')
+            if self._accounts[user]['card'] != card:
+                raise Exception('Authentication failure')
 
-        balance = self._accounts['balance']
-        BANKVAULT_THREADLOCK.release()
+            balance = self._accounts['balance']
+        except Exception as e:
+            raise e
+        finally:
+            BANKVAULT_THREADLOCK.release()
         return balance
 
     def deposit(self, user, card, amount):
         global BANKVAULT_THREADLOCK
         BANKVAULT_THREADLOCK.acquire()
-        if user not in self._accounts:
-            raise Exception('Authentication failure')
-        if self._accounts[user]['card'] != card:
-            raise Exception('Authentication failure')
+        try:
+            if user not in self._accounts:
+                raise Exception('Authentication failure')
+            if self._accounts[user]['card'] != card:
+                raise Exception('Authentication failure')
 
-        self._accounts[user]['balance'] = self._accounts[user]['balance'] + \
-            Decimal(amount)
-        BANKVAULT_THREADLOCK.release()
+            self._accounts[user]['balance'] = self._accounts[user]['balance'] \
+                + Decimal(amount)
+        except Exception as e:
+            raise e
+        finally:
+            BANKVAULT_THREADLOCK.release()
 
     def withdraw(self, user, card, amount):
         global BANKVAULT_THREADLOCK
         BANKVAULT_THREADLOCK.acquire()
-        if user not in self._accounts:
-            raise Exception('Authentication failure')
-        if self._accounts[user]['card'] != card:
-            raise Exception('Authentication failure')
+        try:
+            if user not in self._accounts:
+                raise Exception('Authentication failure')
+            if self._accounts[user]['card'] != card:
+                raise Exception('Authentication failure')
 
-        decimalamount = Decimal(amount)
-        if (self._accounts[user]['balance'] - decimalamount) < Decimal(0):
-            raise Exception('Insufficient funds')
-        self._accounts[user]['balance'] = self._accounts[user]['balance'] - \
-            decimalamount
+            decimalamount = Decimal(amount)
+            if (self._accounts[user]['balance'] - decimalamount) < Decimal(0):
+                raise Exception('Insufficient funds')
+            self._accounts[user]['balance'] = self._accounts[user]['balance'] \
+                - decimalamount
+        except Exception as e:
+            raise e
+        finally:
+            BANKVAULT_THREADLOCK.release()
 
 
 class TLSHandler(BaseHTTPRequestHandler):
