@@ -86,8 +86,6 @@ class Vault():
                                                             user)
         return result
 
-
-
     def deposit(self, user, card, amount):
         global BANKVAULT_THREADLOCK
         BANKVAULT_THREADLOCK.acquire()
@@ -107,7 +105,6 @@ class Vault():
                                                             Decimal(amount),
                                                             user)
         return result
-
 
     def withdraw(self, user, card, amount):
         global BANKVAULT_THREADLOCK
@@ -215,7 +212,6 @@ class TLSHandler(BaseHTTPRequestHandler):
         # FIXME: Parse POST parameters
         # Validate supplied parameters/combinations (POST items)
 
-        # FIXME: Do required action instead of just responding back
         self.send_response(200)
         self.send_header("Content-type", "text/plain")
         self.send_header("Pragma", "no-cache")
@@ -376,7 +372,6 @@ class Bank:
         self.setup_webcrypto()
         self.setup_atmcrypto()
 
-        # FIXME: NEED TO WRITE ATM TICKET TO FILE
         # Start mutlithreading
         try:
             self.start_webserver()
