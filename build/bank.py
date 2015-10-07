@@ -41,6 +41,7 @@ signal.signal(signal.SIGTERM, SIGTERMhandler)
 class Vault():
     def __init__(self):
         self._accounts = {}
+        self._randgen = SystemRandom()
 
     def adduser(self, user, balance):
         if user not in self._accounts:
@@ -52,7 +53,7 @@ class Vault():
         BANKVAULT_THREADLOCK.acquire()
         self._accounts[user] = {}
         self._accounts[user]['balance'] = Decimal(balance)
-        newcard = SystemRandom.random()
+        newcard = self._randgen.randint(1, sys.maxint)
         self._accounts[user]['card'] = newcard
         BANKVAULT_THREADLOCK.release()
         return newcard
