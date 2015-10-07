@@ -45,7 +45,7 @@ class Vault():
 
     def adduser(self, user, balance):
         global BANKVAULT_THREADLOCK
-        if user not in self._accounts:
+        if user in self._accounts:
             raise Exception('User exists')
         if CommonUtils.valid_accountstr(user) == False:
             raise Exception('Invalid user')
@@ -56,7 +56,7 @@ class Vault():
             self._accounts[user] = {}
             self._accounts[user]['balance'] = Decimal(balance)
             newcard = self._randgen.randint(1, sys.maxint)
-            self._accounts[user]['card'] = newcard
+            self._accounts[user]['card'] = str(newcard)
         except Exception as e:
             raise e
         finally:
@@ -65,6 +65,7 @@ class Vault():
 
     def getbalance(self, user, card):
         global BANKVAULT_THREADLOCK
+        balance = None
         BANKVAULT_THREADLOCK.acquire()
         try:
             if user not in self._accounts:
@@ -72,7 +73,7 @@ class Vault():
             if self._accounts[user]['card'] != card:
                 raise Exception('Authentication failure')
 
-            balance = self._accounts['balance']
+            balance = self._accounts[user]['balance']
         except Exception as e:
             raise e
         finally:
@@ -166,14 +167,17 @@ class TLSHandler(BaseHTTPRequestHandler):
             if CommonUtils.valid_accountstr(account) == False:
                 raise Exception("Invalid parameters")
 
-            amount = queryitems['amount'][0]
-            if CommonUtils.valid_currency(amount) == False:
-                raise Exception("Invalid parameters")
+            amount = None
+            if (action != 'balance'):
+                amount = queryitems['amount'][0]
+                if CommonUtils.valid_currency(amount) == False:
+                    raise Exception("Invalid parameters")
 
             card = None
-            if (action != 'new') and ((card is None) or (card == "")):
+            if (action != 'new'):
                 card = queryitems['card'][0]
-                raise Exception("Invalid parameters")
+                if (card is None) or (card == ""):
+                    raise Exception("Invalid parameters")
             elif (action == 'new') and (card in queryitems):
                 raise Exception("Invalid parameters")
 
