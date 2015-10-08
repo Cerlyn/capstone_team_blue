@@ -38,6 +38,10 @@ def SIGTERMhandler(signum, frame):
 signal.signal(signal.SIGTERM, SIGTERMhandler)
 
 
+class ParameterException(Exception):
+    pass
+
+
 class Vault():
     def __init__(self):
         self._accounts = {}
@@ -46,11 +50,11 @@ class Vault():
     def adduser(self, user, balance):
         global BANKVAULT_THREADLOCK
         if user in self._accounts:
-            raise Exception('User exists')
+            raise ParameterException('User exists')
         if CommonUtils.valid_accountstr(user) == False:
-            raise Exception('Invalid user')
+            raise ParameterException('Invalid user')
         if CommonUtils.valid_currency(balance) == False:
-            raise Exception('Invalid balance')
+            raise ParameterException('Invalid balance')
         BANKVAULT_THREADLOCK.acquire()
         try:
             self._accounts[user] = {}
@@ -72,9 +76,9 @@ class Vault():
         BANKVAULT_THREADLOCK.acquire()
         try:
             if user not in self._accounts:
-                raise Exception('Authentication failure')
+                raise ParameterException('Authentication failure')
             if self._accounts[user]['card'] != card:
-                raise Exception('Authentication failure')
+                raise ParameterException('Authentication failure')
 
             balance = self._accounts[user]['balance']
         except Exception as e:
@@ -91,9 +95,9 @@ class Vault():
         BANKVAULT_THREADLOCK.acquire()
         try:
             if user not in self._accounts:
-                raise Exception('Authentication failure')
+                raise ParameterException('Authentication failure')
             if self._accounts[user]['card'] != card:
-                raise Exception('Authentication failure')
+                raise ParameterException('Authentication failure')
 
             self._accounts[user]['balance'] = self._accounts[user]['balance'] \
                 + Decimal(amount)
@@ -111,13 +115,13 @@ class Vault():
         BANKVAULT_THREADLOCK.acquire()
         try:
             if user not in self._accounts:
-                raise Exception('Authentication failure')
+                raise ParameterException('Authentication failure')
             if self._accounts[user]['card'] != card:
-                raise Exception('Authentication failure')
+                raise ParameterException('Authentication failure')
 
             decimalamount = Decimal(amount)
             if (self._accounts[user]['balance'] - decimalamount) < Decimal(0):
-                raise Exception('Insufficient funds')
+                raise ParameterException('Insufficient funds')
             self._accounts[user]['balance'] = self._accounts[user]['balance'] \
                 - decimalamount
         except Exception as e:
@@ -140,11 +144,10 @@ class TLSHandler(BaseHTTPRequestHandler):
         # BaseHTTPRequestHandler.log_message(self, logformat, *args)
         return
 
-    # Override default error logger to provide spec-required error message
+    # Override default error logger as well
     def log_error(self, logformat, *args):
         # BaseHTTPRequestHandler.log_error(self, logformat, *args)
-        sys.stdout.write("protocol_error\n")
-        sys.stdout.flush()
+        return
 
     def fail_request(self, logtext):
         self.send_response(500)
@@ -204,8 +207,12 @@ class TLSHandler(BaseHTTPRequestHandler):
                 response_to_client = BANKVAULT.deposit(account, card, amount)
             elif action == 'withdraw':
                 response_to_client = BANKVAULT.withdraw(account, card, amount)
-
+        except ParameterException:  # ATM supplied something incorrect
+            self.fail_request("REQUEST FAILED")
+            return
         except Exception:
+            sys.stdout.write("protocol_error\n")
+            sys.stdout.flush()
             self.fail_request("REQUEST FAILED")
             return
 
