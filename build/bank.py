@@ -55,6 +55,8 @@ class Vault():
             raise ParameterException('Invalid user')
         if CommonUtils.valid_currency(balance) == False:
             raise ParameterException('Invalid balance')
+        if Decimal(balance) < 10.00:
+            raise ParameterException('Initial deposit too low')
         BANKVAULT_THREADLOCK.acquire()
         try:
             self._accounts[user] = {}
@@ -137,7 +139,12 @@ class Vault():
 class TLSHandler(BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server):
         self.timeout = 10
-        BaseHTTPRequestHandler.__init__(self, request, client_address, server)
+        try:
+            BaseHTTPRequestHandler.__init__(self, request, client_address, 
+                                            server)
+        except ssl.SSLError:
+            sys.stdout.write("protocol_error\n")
+            sys.stdout.flush()
 
     # Do not do default logging of messages to STDERR
     def log_message(self, logformat, *args):
@@ -159,7 +166,7 @@ class TLSHandler(BaseHTTPRequestHandler):
         self.log_error('request_failed')
 
     def do_GET(self):
-        self.connection.settimeout(10)
+        self.connection.settimeout(10.0)
         # Parse URL query parameters, error out if invalid
         # FIXME: Move everything to POST once ATM-side implemented
 
@@ -231,6 +238,7 @@ class TLSHandler(BaseHTTPRequestHandler):
 
 class TLSHTTPServer(HTTPServer):
         def __init__(self, address, port, tlscertificate, tlsprivkey):
+            socket.setdefaulttimeout(10.0)
             BaseServer.__init__(self, (address, port), TLSHandler)
             self.socket = ssl.SSLSocket(socket.socket(self.address_family,
                                                       self.socket_type),
@@ -238,6 +246,7 @@ class TLSHTTPServer(HTTPServer):
                                         certfile=TLStempfile.name,
                                         server_side=True
                                         )
+
             self.server_bind()
             self.server_activate()
 
@@ -282,9 +291,10 @@ class Bank:
         self._certauthority.add_extensions([
             crypto.X509Extension("basicConstraints", True,
                                  "CA:TRUE, pathlen:0"),
+            crypto.X509Extension("subjectAltName", True, "DNS:ca.bank.example.com"),
             crypto.X509ExtensionType("keyUsage", True, "keyCertSign, cRLSign"),
             crypto.X509ExtensionType("subjectKeyIdentifier", False, "hash",
-                                     subject=self._certauthority)
+                                     subject=self._certauthority),
         ])
         self._certauthority.sign(self._certauthorityprivatekey, "sha256")
         self._certauthoritynextserial = 2
@@ -343,6 +353,7 @@ class Bank:
         self._tlscert.set_pubkey(certreq.get_pubkey())
         self._tlscert.add_extensions([
             crypto.X509Extension("basicConstraints", True, "CA:FALSE"),
+            crypto.X509Extension("subjectAltName", True, "DNS:atmserver.bank.example.com"),
             crypto.X509ExtensionType("extendedKeyUsage", True, "serverAuth"),
         ])
         self._tlscert.sign(self._certauthorityprivatekey, "sha256")
