@@ -8,12 +8,11 @@
 
 import os.path
 import signal
+import ssl
 import sys
 import tempfile
 import urllib3
 from common_utils import CommonUtils
-from _ssl import CERT_REQUIRED
-
 
 def SIGALRMhandler(signum, frame):
     if tempcafile is not None:
@@ -113,14 +112,15 @@ class ATM:
                                                       port=utils.get_ipport(),
                                                       maxsize=1,
                                                       ca_certs=tempcafile.name,
-                                                      cert_reqs=CERT_REQUIRED,
+                                                      cert_reqs=ssl.CERT_REQUIRED,
                                                       retries=0,
                                                       assert_hostname=atmserverhostname)
             response = httpsclient.request('GET', '/atm.cgi', params)
 
+        except urllib3.exceptions.SSLError:
+            self.atm_protocol_error_exit('SSL Communication failure')
         except Exception as e:
-            raise e
-            self.error_exit('Communication failure')
+            self.error_exit('Unknown Communication failure')
 
         signal.alarm(0)
         tempcafile.close()
