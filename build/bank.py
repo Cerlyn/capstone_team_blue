@@ -42,6 +42,21 @@ class ParameterException(Exception):
     pass
 
 
+class MySSLSocket(ssl.SSLSocket):
+    # Override the default accept handler so we can catch negotiation MITM errors
+    def accept(self):
+        newsock, addr = socket.socket.accept(self)
+        try:
+            newsock = self.context.wrap_socket(newsock,
+                        do_handshake_on_connect=self.do_handshake_on_connect,
+                        suppress_ragged_eofs=self.suppress_ragged_eofs,
+                        server_side=True)
+        except Exception as e:
+            sys.stdout.write("protocol_error\n")
+            sys.stdout.flush()
+            raise e
+        return newsock, addr
+
 class Vault():
     def __init__(self):
         self._accounts = {}
@@ -240,11 +255,12 @@ class TLSHTTPServer(HTTPServer):
         def __init__(self, address, port, tlscertificate, tlsprivkey):
             socket.setdefaulttimeout(10.0)
             BaseServer.__init__(self, (address, port), TLSHandler)
-            self.socket = ssl.SSLSocket(socket.socket(self.address_family,
+            self.socket = MySSLSocket(socket.socket(self.address_family,
                                                       self.socket_type),
                                         ssl_version=ssl.PROTOCOL_TLSv1_2,
                                         certfile=TLStempfile.name,
-                                        server_side=True
+                                        server_side=True,
+                                        suppress_ragged_eofs=False
                                         )
 
             self.server_bind()
@@ -258,7 +274,10 @@ class TLSHTTPServer(HTTPServer):
 
 
 class Threading_TLSHTTPServer(ThreadingMixIn, TLSHTTPServer):
-    pass
+    def handle_timeout(self):
+        # HTTPServer.handle_timeout(self)
+        sys.stdout.write("protocol_error")
+        sys.stdout.flush()
 
 
 class Bank:
