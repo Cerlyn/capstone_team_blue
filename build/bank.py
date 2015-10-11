@@ -65,12 +65,12 @@ class Vault():
 
     def adduser(self, user, balance):
         global BANKVAULT_THREADLOCK
-        if user in self._accounts:
-            raise ParameterException('User exists')
         if CommonUtils.valid_accountstr(user) == False:
             raise ParameterException('Invalid user')
         if CommonUtils.valid_currency(balance) == False:
             raise ParameterException('Invalid balance')
+        if self._accounts.get(user) is not None:
+            raise ParameterException('User exists')
         if Decimal(balance) < 10.00:
             raise ParameterException('Initial deposit too low')
         BANKVAULT_THREADLOCK.acquire()
@@ -93,12 +93,11 @@ class Vault():
         balance = None
         BANKVAULT_THREADLOCK.acquire()
         try:
-            if user not in self._accounts:
-                raise ParameterException('Authentication failure')
             if self._accounts[user]['card'] != card:
                 raise ParameterException('Authentication failure')
-
             balance = self._accounts[user]['balance']
+        except KeyError:  # In case the user was not present
+            raise ParameterException('Authentication failure')
         except Exception as e:
             raise e
         finally:
@@ -112,13 +111,13 @@ class Vault():
         global BANKVAULT_THREADLOCK
         BANKVAULT_THREADLOCK.acquire()
         try:
-            if user not in self._accounts:
-                raise ParameterException('Authentication failure')
             if self._accounts[user]['card'] != card:
                 raise ParameterException('Authentication failure')
 
             self._accounts[user]['balance'] = self._accounts[user]['balance'] \
                 + Decimal(amount)
+        except KeyError:  # In case the user was not present
+            raise ParameterException('Authentication failure')
         except Exception as e:
             raise e
         finally:
@@ -132,8 +131,6 @@ class Vault():
         global BANKVAULT_THREADLOCK
         BANKVAULT_THREADLOCK.acquire()
         try:
-            if user not in self._accounts:
-                raise ParameterException('Authentication failure')
             if self._accounts[user]['card'] != card:
                 raise ParameterException('Authentication failure')
 
@@ -142,6 +139,8 @@ class Vault():
                 raise ParameterException('Insufficient funds')
             self._accounts[user]['balance'] = self._accounts[user]['balance'] \
                 - decimalamount
+        except KeyError:  # In case the user was not present
+            raise ParameterException('Authentication failure')
         except Exception as e:
             raise e
         finally:
