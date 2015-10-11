@@ -10,23 +10,14 @@ import os.path
 import signal
 import ssl
 import sys
-import tempfile
 import urllib3
 from common_utils import CommonUtils
 
 
 def SIGALRMhandler(signum, frame):
-    if tempcafile is not None:
-        try:
-            tempcafile.close()
-        except Exception:
-            pass
-        finally:
-            CommonUtils.atm_protocol_error_exit('TIMEOUT')
+    CommonUtils.atm_protocol_error_exit('TIMEOUT')
 
 signal.signal(signal.SIGALRM, SIGALRMhandler)
-
-tempcafile = None
 
 
 class ATM:
@@ -47,17 +38,6 @@ class ATM:
         cardhandle = file(card_filename, 'w')
         cardhandle.write(card_data)
         cardhandle.close()
-
-    def get_remoteTLScert(self):
-        authfile_name = self._common_utils.get_authfilename()
-        authfile = file(authfile_name, 'r')
-        roughparts = authfile.read().split('-----\n')
-        authfile.close()
-        if len(roughparts) != 7:
-            raise Exception("Invalid bank auth file")
-        remotecert = "-----BEGIN CERTIFICATE-----\n" + roughparts[5] \
-            + "-----\n"
-        return remotecert
 
     def run(self):
         global tempcafile
@@ -98,12 +78,8 @@ class ATM:
         else:
             self.error_exit('Unknown transaction type - should never get here')
 
-        remotecert = self.get_remoteTLScert()
-        tempcafile = tempfile.NamedTemporaryFile(prefix='tmpATM')
-        tempcafile.write(remotecert)
-        tempcafile.flush()
-
         clientcertfile = self._common_utils.get_authfilename()
+        cacertfile = clientcertfile  # Last item; only cert with CA:TRUE set
 
         signal.alarm(10)
 
@@ -114,7 +90,7 @@ class ATM:
             httpsclient = urllib3.HTTPSConnectionPool(host=utils.get_ipaddress(),
                                                       port=utils.get_ipport(),
                                                       maxsize=1,
-                                                      ca_certs=tempcafile.name,
+                                                      ca_certs=cacertfile,
                                                       cert_reqs=ssl.CERT_REQUIRED,
                                                       cert_file=clientcertfile,
                                                       ssl_version=ssl.PROTOCOL_TLSv1_2,
@@ -128,8 +104,6 @@ class ATM:
             self.error_exit('Unknown Communication failure')
 
         signal.alarm(0)
-        tempcafile.close()
-        tempcafile = None
 
         if response.status != 200:
             self.error_exit('Remote error')
