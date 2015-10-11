@@ -39,10 +39,10 @@ class CommonUtils:
     @staticmethod
     def error_exit(message=None):
         if message:
-            # May need to comment out STDERR output for contest scoring system
-            # Although in theory it should be ignored
-            sys.stderr.write(message + "\n")
-            sys.stderr.flush()
+            # Since we are stable we no longer need verbose error messages
+            # Uncomment the below two lines to debug
+            # sys.stderr.write(message + "\n")
+            # sys.stderr.flush()
             sys.exit(255)
 
     @staticmethod
