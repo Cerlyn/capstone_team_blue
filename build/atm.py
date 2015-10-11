@@ -14,6 +14,7 @@ import tempfile
 import urllib3
 from common_utils import CommonUtils
 
+
 def SIGALRMhandler(signum, frame):
     if tempcafile is not None:
         try:
@@ -102,6 +103,8 @@ class ATM:
         tempcafile.write(remotecert)
         tempcafile.flush()
 
+        clientcertfile = self._common_utils.get_authfilename()
+
         signal.alarm(10)
 
         try:
@@ -113,13 +116,15 @@ class ATM:
                                                       maxsize=1,
                                                       ca_certs=tempcafile.name,
                                                       cert_reqs=ssl.CERT_REQUIRED,
+                                                      cert_file=clientcertfile,
+                                                      ssl_version=ssl.PROTOCOL_TLSv1_2,
                                                       retries=0,
                                                       assert_hostname=atmserverhostname)
             response = httpsclient.request('GET', '/atm.cgi', params)
 
         except urllib3.exceptions.SSLError:
             self.atm_protocol_error_exit('SSL Communication failure')
-        except Exception as e:
+        except Exception:
             self.error_exit('Unknown Communication failure')
 
         signal.alarm(0)

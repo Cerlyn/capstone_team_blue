@@ -43,7 +43,7 @@ class ParameterException(Exception):
 
 
 class MySSLSocket(ssl.SSLSocket):
-    # Override the default accept handler so we can catch negotiation MITM errors
+    # Override the default accept handler to catch negotiation/MITM errors
     def accept(self):
         newsock, addr = socket.socket.accept(self)
         try:
@@ -56,6 +56,7 @@ class MySSLSocket(ssl.SSLSocket):
             sys.stdout.flush()
             raise e
         return newsock, addr
+
 
 class Vault():
     def __init__(self):
@@ -155,7 +156,7 @@ class TLSHandler(BaseHTTPRequestHandler):
     def __init__(self, request, client_address, server):
         self.timeout = 10
         try:
-            BaseHTTPRequestHandler.__init__(self, request, client_address, 
+            BaseHTTPRequestHandler.__init__(self, request, client_address,
                                             server)
         except ssl.SSLError:
             sys.stdout.write("protocol_error\n")
@@ -256,12 +257,14 @@ class TLSHTTPServer(HTTPServer):
             socket.setdefaulttimeout(10.0)
             BaseServer.__init__(self, (address, port), TLSHandler)
             self.socket = MySSLSocket(socket.socket(self.address_family,
-                                                      self.socket_type),
-                                        ssl_version=ssl.PROTOCOL_TLSv1_2,
-                                        certfile=TLStempfile.name,
-                                        server_side=True,
-                                        suppress_ragged_eofs=False
-                                        )
+                                                    self.socket_type),
+                                      ssl_version=ssl.PROTOCOL_TLSv1_2,
+                                      certfile=TLStempfile.name,
+                                      ca_certs=TLStempfile.name,
+                                      cert_reqs=ssl.CERT_REQUIRED,
+                                      server_side=True,
+                                      suppress_ragged_eofs=False
+                                      )
 
             self.server_bind()
             self.server_activate()
