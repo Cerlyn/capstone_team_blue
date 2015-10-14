@@ -114,7 +114,7 @@ class ATM:
         if transactiontype == 'N':
             if len(responselines) == 1:
                 self.error_exit('No card info provided')
-            if os.path.exists(card_filename) == False:
+            if os.path.exists(card_filename) is False:
                 self.write_cardfile(card_filename, responselines[1] + '\n')
             else:
                 self.error_exit('Card file found-cannot overwrite')

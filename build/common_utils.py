@@ -5,6 +5,9 @@ import re
 import sys
 
 
+_MAXINPUTBALANCE = Decimal('4294967295.99')
+
+
 class CommonUtils:
     def __init__(self, mode):
         # Parameters stored in CommonUtils are from the command-line
@@ -50,7 +53,7 @@ class CommonUtils:
         if (len(test_account) < 1) or (len(test_account) > 250):
             return False
 
-        if re.match('[_\-\.0-9a-z]+$', test_account) == None:
+        if re.match('[_\-\.0-9a-z]+$', test_account) is None:
             return False
 
         return True
@@ -60,9 +63,9 @@ class CommonUtils:
     def valid_currency(test_amount):
         # Maximum amount a user may specify to use during a transaction
         # Need string quotes here or it ends up 4294967295.9899997711181640625
-        _MAXINPUTBALANCE = Decimal('4294967295.99')
+        global _MAXINPUTBALANCE
 
-        if re.match('([0-9]|[1-9][0-9]{0,9})\.\d\d$', test_amount) == None:
+        if re.match('([0-9]|[1-9][0-9]{0,9})\.\d\d$', test_amount) is None:
             return False
 
         if Decimal(test_amount) > _MAXINPUTBALANCE:
@@ -74,7 +77,7 @@ class CommonUtils:
 
     @staticmethod
     def valid_intstr(test_integer):
-        if re.match('0$|[1-9][0-9]*$', test_integer) == None:
+        if re.match('0$|[1-9][0-9]*$', test_integer) is None:
             return False
         else:
             return True
@@ -83,7 +86,7 @@ class CommonUtils:
     @staticmethod
     def valid_ipv4str(test_ipv4):
         if re.match('([0-9]|[1-9][0-9]{0,2})\.([0-9]|[1-9][0-9]{0,2})\.([0-9]|[1-9][0-9]{0,2})\.([0-9]|[1-9][0-9]{0,2})$',  # nopep8
-                    test_ipv4) == None:
+                    test_ipv4) is None:
             return False
 
         octets = test_ipv4.split('.')
@@ -101,7 +104,7 @@ class CommonUtils:
         if (test_filename == '.') or (test_filename == '..'):
             return False
 
-        if re.match('[_\-\.0-9a-z]+$', test_filename) == None:
+        if re.match('[_\-\.0-9a-z]+$', test_filename) is None:
             return False
 
         return True
@@ -150,7 +153,7 @@ class CommonUtils:
 
             # Common arguments (Bank and ATM)
             if opt == '-p':  # Port
-                if self.valid_intstr(val) == False:
+                if self.valid_intstr(val) is False:
                     self.error_exit("Port not an integer")
 
                 if len(val) > 5:  # 65535
@@ -161,24 +164,24 @@ class CommonUtils:
                     self.error_exit("Port out of range")
 
             elif opt == '-s':  # Auth file
-                if self.valid_filenamestr(val) == False:
+                if self.valid_filenamestr(val) is False:
                     self.error_exit("Auth file is not a valid filename")
 
                 self._authFilename = val
 
             # Below here are ATM client specific arguments
             elif opt == '-i':  # IP Address
-                if self.valid_ipv4str(val) == False:
+                if self.valid_ipv4str(val) is False:
                     self.error_exit("Invalid IP Address")
                 self._ipaddr = val
 
             elif opt == '-a':  # Account
-                if self.valid_accountstr(val) == False:
+                if self.valid_accountstr(val) is False:
                     self.error_exit("Invalid account name")
                 self._account = val
 
             elif opt == '-c':  # Card file
-                if self.valid_filenamestr(val) == False:
+                if self.valid_filenamestr(val) is False:
                     self.error_exit("Card file is not a valid filename")
 
                 self._cardFilename = val
@@ -187,19 +190,19 @@ class CommonUtils:
                 self._transactionType = "G"
 
             elif opt == '-d':  # Deposit
-                if self.valid_currency(val) == False:
+                if self.valid_currency(val) is False:
                     self.error_exit("Invalid deposit amount")
                 self._transactionType = "D"
                 self._transactionAmount = Decimal(val)
 
             elif opt == '-w':  # Withdraw
-                if self.valid_currency(val) == False:
+                if self.valid_currency(val) is False:
                     self.error_exit("Invalid withdrawal amount")
                 self._transactionType = "W"
                 self._transactionAmount = Decimal(val)
 
             elif opt == '-n':  # New Account
-                if self.valid_currency(val) == False:
+                if self.valid_currency(val) is False:
                     self.error_exit("Invalid new account balance")
                 self._transactionType = "N"
                 self._transactionAmount = Decimal(val)
@@ -209,17 +212,17 @@ class CommonUtils:
             if self._cardFilename is None:
                 self._cardFilename = self._account + ".card"
 
-            if (path.isfile(self._cardFilename) == False) \
+            if (path.isfile(self._cardFilename) is False) \
                     and self._transactionType != "N":
                 self.error_exit("Card file not found")
 
             if (self._transactionType == "N"):
-                if path.isfile(self._cardFilename) == True:
+                if path.isfile(self._cardFilename) is True:
                     self.error_exit("Card file already exists")
                 if self._transactionAmount < 10.00:
                     self.error_exit("New balance must be >= 10.00")
 
-            if (path.isfile(self._authFilename) == False):
+            if (path.isfile(self._authFilename) is False):
                 self.error_exit("Auth file not found")
 
         if self._mode == 'Bank':

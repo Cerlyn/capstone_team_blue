@@ -65,9 +65,9 @@ class Vault():
 
     def adduser(self, user, balance):
         global BANKVAULT_THREADLOCK
-        if CommonUtils.valid_accountstr(user) == False:
+        if CommonUtils.valid_accountstr(user) is False:
             raise ParameterException('Invalid user')
-        if CommonUtils.valid_currency(balance) == False:
+        if CommonUtils.valid_currency(balance) is False:
             raise ParameterException('Invalid balance')
         if self._accounts.get(user) is not None:
             raise ParameterException('User exists')
@@ -203,13 +203,13 @@ class TLSHandler(BaseHTTPRequestHandler):
                 raise Exception("Invalid parameters")
 
             account = queryitems['account'][0]
-            if CommonUtils.valid_accountstr(account) == False:
+            if CommonUtils.valid_accountstr(account) is False:
                 raise Exception("Invalid parameters")
 
             amount = None
             if (action != 'balance'):
                 amount = queryitems['amount'][0]
-                if CommonUtils.valid_currency(amount) == False:
+                if CommonUtils.valid_currency(amount) is False:
                     raise Exception("Invalid parameters")
 
             card = None
