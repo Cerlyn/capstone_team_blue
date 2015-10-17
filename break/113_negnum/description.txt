@@ -1,0 +1,15 @@
+This ATM accepts negative numbers for parameters, and does odd things 
+with them:
+
+./atm -n -5.00 -a ted
+{"account":"ted","initial_balance":4294967291.00}
+{"account":"ted","initial_balance":4294967291.00}
+
+The ATM Protocol spec states:
+Numeric inputs are positive and provided in decimal without any leading 0's
+(should match /(0|[1-9][0-9]*)/). Thus "42" is a valid input number but the 
+octal "052" or hexadecimal "0x2a" are not. Any reference to "number" below 
+refers to this input specification.
+
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
