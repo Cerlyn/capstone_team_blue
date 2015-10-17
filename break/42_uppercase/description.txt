@@ -1,0 +1,14 @@
+The specification states:
+
+"File names are restricted to underscores, hyphens, dots, digits, and 
+lowercase alphabetical characters (each character should match 
+/[_\-\.0-9a-z]/). File names are to be between 1 and 255 characters long.
+The special file names "." and ".." are not allowed."
+
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+The test submission uses a card file name of "dAn" with an uppercase A.
+
+Therefore this account/card file should never have been created.
+
+
