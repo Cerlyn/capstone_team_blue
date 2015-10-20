@@ -1,0 +1,8 @@
+"the file name input for the card accepts / which can allow directory traversal and other directory creation.
+
+The input specification for file name had restricted the character set to _ - . 0-9 and lower characters.
+  
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+
+Therefore "-c" ".\card.card" shouldn't be accepted.
