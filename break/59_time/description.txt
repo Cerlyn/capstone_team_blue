@@ -1,0 +1,16 @@
+On specifying wrong port to the atm the connection should fail and it should timeout after 10 seconds. 
+
+The requirement for that is 
+
+
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+"A timeout occurs if the other program does not respond within 10 seconds. If the atm observes the timeout, it should exit with return code 63, while if the bank observes it, it should print "protocol_error" to stdout (followed by a newline) and rollback the current transaction. The non-observing party need not do anything in particular."
+
+The implementaion doesnt exit on timeout and core dumps for the submited json. 
+
+  
+
+
+
+
