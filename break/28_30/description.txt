@@ -1,0 +1,5 @@
+" fractional number should be always of format x.yz where x can be any number from 0 and yz any single digit number as per the v/100 mentioned in the 3rd point of Valid Inputs in below docuemnt.  
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+
+Therefore "-d" ".30" shouldn't be accepted.
