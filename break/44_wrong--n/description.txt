@@ -1,0 +1,3 @@
+" for wrong input paramter the atm is not returning 255. --n is wrong parameter and the atm should exit with the paramter 255.  
+
+"
