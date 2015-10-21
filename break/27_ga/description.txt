@@ -1,0 +1,13 @@
+"Command line arguments must be POSIX complaint" per the rules at
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+The POSIX specification contains --
+
+Guideline 5:
+One or more options without option-arguments, followed by at most one option 
+that takes an option-argument, should be accepted when grouped behind 
+one '-' delimiter.
+
+http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
+
+Therefore "-ga ted" should be accepted to get the balance of the ted account.
