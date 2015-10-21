@@ -1,0 +1,10 @@
+"Implementation allows card file creation in /tmp which shouldnt supported. As /tmp is accessible to all not as home directory of user.
+
+ANd even 
+
+The input specification for file name had restricted the character set to _ - . 0-9 and lower characters.
+  
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+
+Therefore "-c" ".\card.card" and -c "/tmp/card.card" shouldn't be accepted.
