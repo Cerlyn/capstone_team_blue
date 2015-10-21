@@ -1,0 +1,1 @@
+space input for the card file should be rejected as space charaster is not accepted and error should 255. Here error code is zero.
