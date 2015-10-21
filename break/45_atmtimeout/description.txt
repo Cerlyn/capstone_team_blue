@@ -1,0 +1,8 @@
+Card file shouldn't be created on the failed transaction. This will block the card file to be used for the next legitimate card creation. 
+
+
+  
+
+
+
+
