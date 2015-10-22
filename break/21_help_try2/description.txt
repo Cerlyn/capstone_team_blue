@@ -1,0 +1,15 @@
+(resubmitted after grader fixed)
+
+The ATM specification states:
+
+Any invocation of the atm which does not follow the four enumerated 
+possibilities above should exit with return code 255 (printing nothing).
+
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/atm.html
+
+The test submission looks for help flags, and an undocumented "-h" parameter
+provides help information to STDOUT.
+
+None of the four examples provided in the ATM documentation permit this.
+
+(Other flags such as --version are also present.)
