@@ -1,0 +1,8 @@
+{
+    "type": "correctness",
+    "target_team": 116,
+    "inputs": [
+{"input":["-p", "%PORT%", "-i", "%IP%", "-a", "ted2\"ted", "-n", "10.30"]},
+        {"input":["-p", "%PORT%", "-i", "%IP%", "-a", "ted23", "-n", "10.30"]}
+]
+}
