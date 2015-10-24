@@ -1,0 +1,18 @@
+This MITM closes the connection between the ATM and the bank for the 
+second connection between them as soon as the bank tries to send data back to
+the ATM.
+
+This ideally should cause the bank to rollback the second transaction and not 
+process it, as the ATM never received the response.
+
+Alternatively, the ATM needs to at least complain.
+
+"If an error is detected in the protocol's communication, atm should exit 
+with return code 63, while bank should print "protocol_error" to stdout 
+(followed by a newline) and roll back (i.e., undo any changes made by) 
+the current transaction."
+
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+
+
