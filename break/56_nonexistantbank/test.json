@@ -1,0 +1,7 @@
+{
+    "type": "correctness",
+    "target_team": 56,
+    "inputs": [
+      {"input":["-p", "%PORT%", "-i", "%IP%", "-a", "account", "-n", "10.30", "-s", "notareallbank.12345"]}
+]
+}

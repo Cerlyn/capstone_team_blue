@@ -1,0 +1,4 @@
+This test provides a bank filename which does not exist.
+
+Instead of returning an error indicating generic failure (255)
+the ATM appears to report an exception and possibly crash.
