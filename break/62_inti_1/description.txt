@@ -1,0 +1,1 @@
+ Test here is trying to open new account and do 2 withdrawals. For MITM the 1st withdrwal is captured and replayed for the 3rd withdrwal blocking the real packet from bank. Atm is not able to handle htis MITM integrity check of replay at ATM.
