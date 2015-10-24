@@ -1,0 +1,28 @@
+This MITM closes the connection between the ATM and the bank for the 
+second connection between them the second time during said connection the 
+bank tries to send data back to the ATM.
+
+This ideally should cause the bank to rollback the second transaction and not 
+process it, as the ATM never received the response.
+
+Alternatively, the ATM needs to at least complain.
+
+"If an error is detected in the protocol's communication, atm should exit 
+with return code 63, while bank should print "protocol_error" to stdout 
+(followed by a newline) and roll back (i.e., undo any changes made by) 
+the current transaction."
+
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+In addition this submission may crash as a result of this:
+Traceback (most recent call last):
+  File "/home/bibi/src/otherteams/repos/20/build/atm", line 432, in <module>
+    RequestInterpreter(config).process_request()
+  File "/home/bibi/src/otherteams/repos/20/build/atm", line 398, in process_request
+    response = self._connection.send(request)
+  File "/home/bibi/src/otherteams/repos/20/build/atm", line 285, in send
+    final_response = self._crypter.decrypt(self.sock.recv(MAX_PAYLOAD_SIZE))
+  File "/home/bibi/src/otherteams/repos/20/build/atm", line 232, in decrypt
+    raise InvalidToken('Bad signature')
+__main__.InvalidToken: 'Bad signature'
+
