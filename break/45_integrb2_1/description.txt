@@ -1,0 +1,8 @@
+This MITM closes the connection between the ATM and the bank for the 
+second connection between them as soon as the bank tries to send data back to
+the ATM.
+
+This ideally should cause the bank to rollback the second transaction and not 
+process it, as the ATM never received the response.
+
+

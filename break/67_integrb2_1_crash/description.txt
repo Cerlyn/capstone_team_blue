@@ -1,0 +1,36 @@
+This MITM closes the connection between the ATM and the bank for the 
+second connection between them as soon as the bank tries to send data back to
+the ATM.
+
+This ideally should cause the bank to rollback the second transaction and not 
+process it, as the ATM never received the response.
+
+Alternatively, the ATM needs to at least complain.
+
+"If an error is detected in the protocol's communication, atm should exit 
+with return code 63, while bank should print "protocol_error" to stdout 
+(followed by a newline) and roll back (i.e., undo any changes made by) 
+the current transaction."
+
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+For this team there also appears to be a potential uncaught exception:
+Traceback (most recent call last):
+  File "/home/bibi/src/otherteams/repos/67/build/atm", line 556, in <module>
+    main()
+  File "/home/bibi/src/otherteams/repos/67/build/atm", line 529, in main
+    response = process_deposit(account, amount, auth, cardfile)
+  File "/home/bibi/src/otherteams/repos/67/build/atm", line 444, in process_dep
+osit auth
+  File "/home/bibi/src/otherteams/repos/67/build/atm", line 378, in send_reques
+t_receive_response
+    response_received = crypto_utils.verify_then_decrypt(auth['secret_key'], da
+ta)
+  File "/home/bibi/src/otherteams/repos/67/build/atm", line 110, in verify_then
+_decrypt
+    plaintext = crypto_utils.secretbox.decrypt(base64.b64decode(ciphertext_as_b
+ase64_string))
+  File "/usr/local/lib/python2.7/dist-packages/libnacl/secret.py", line 43, in 
+decrypt
+    raise ValueError('Invalid nonce')
+ValueError: Invalid nonce
