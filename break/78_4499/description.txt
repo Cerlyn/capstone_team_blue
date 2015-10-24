@@ -1,0 +1,4 @@
+connection to non listening port is considred as protocol error. And is expected to return 63.
+
+
+refer section errors in https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html.
