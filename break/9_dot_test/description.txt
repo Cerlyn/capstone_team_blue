@@ -1,0 +1,1 @@
+The test here demonstrates the handling of .. in a file name. The spec only needs to block us from using ".." which in unix used by system. If anywhere else .. is apeared in filename shouldn't be blocked.
