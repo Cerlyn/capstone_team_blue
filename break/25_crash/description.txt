@@ -1,0 +1,3 @@
+When a attacker tries to use already created user autnentication card file as a bank authentication file the bank should reject it as protocol error. The bank key and user athuentication key stored in both files are different. SO when the atm opens the channel using older user auth key as bank key the decrypion of channel at bank should fail and report 63 without any crash at bank end.
+
+
