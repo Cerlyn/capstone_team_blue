@@ -1,0 +1,33 @@
+This MITM is based on an older style of firewall known as a "proxy firewall",
+although newer ones may behave similarly.
+
+Such a firewall proxies/MITM's all connections, terminating them on the
+firewall and then opening a fresh TCP/UDP/etc. connection to the other side.
+
+Here, the proxy firewall receives initial data from either end, determines
+it doesn't like it, and drops the connection without passing it on.
+
+
+The bank and/or ATM need to at least complain appropriately.
+
+"If an error is detected in the protocol's communication, atm should exit 
+with return code 63, while bank should print "protocol_error" to stdout 
+(followed by a newline) and roll back (i.e., undo any changes made by) 
+the current transaction."
+
+https://coursera.builditbreakit.org/static/doc/fall2015coursera/spec/index.html
+
+This submission also appears to result in an exception/crash:
+Traceback (most recent call last):
+  File "<string>", line 190, in <module>
+  File "<string>", line 98, in mode_new_account
+  File "<string>", line 36, in query_server
+  File "/usr/lib/python2.7/httplib.py", line 1127, in getresponse
+    response.begin()
+  File "/usr/lib/python2.7/httplib.py", line 453, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python2.7/httplib.py", line 417, in _read_status
+    raise BadStatusLine(line)
+httplib.BadStatusLine: ''
+atm returned -1
+
