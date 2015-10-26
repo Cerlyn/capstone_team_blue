@@ -1,0 +1,18 @@
+This test tests invalid bank.auth handling by feeding an ATM card
+in as if it was the authorization file.
+
+For correctness purposes, either 63 or 255 would have been accepted by our
+team.
+
+Instead an exception was reported with an invalid exit code (1)
+
+Traceback (most recent call last):
+  File "/tmp/tmpUAmD9z/atm", line 432, in <module>
+    RequestInterpreter(config).process_request()
+  File "/tmp/tmpUAmD9z/atm", line 328, in __init__
+    self._crypter = AuthenticatedCrypter(self._key)
+  File "/tmp/tmpUAmD9z/atm", line 208, in __init__
+    raise InvalidToken('bad key!')
+__main__.InvalidToken: 'bad key!'
+$ /tmp/tmpUAmD9z/atm -p 3000 -i 127.0.0.1 -g -a ted -s ted.card
+got exit: 1
