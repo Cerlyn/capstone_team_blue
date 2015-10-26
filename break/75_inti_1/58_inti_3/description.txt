@@ -1,5 +1,0 @@
-Test here is demonstrating the successful replay attack against eh ATM protocol implementation. The MITM here is capturing the first withdrawal attempt and replay it when the atm requests next withdrawal blockign actual request from atm.
-
-This should be detected and blocked as replays can be used by attackers to play with integrity.
-
-
