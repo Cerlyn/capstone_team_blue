@@ -1,0 +1,20 @@
+This test tests invalid card file handling by feeding the bank.auth file
+into the ATM as an ATM card.
+
+For correctness purposes, either 63 or 255 would have been accepted by our
+team.
+
+Instead an exception with an invalid error code was reported:
+
+Traceback (most recent call last):
+  File "./atm.py", line 175, in <module>
+  File "/usr/local/lib/python2.7/dist-packages/simplejson/__init__.py", line 380, in dumps
+    return _default_encoder.encode(obj)
+  File "/usr/local/lib/python2.7/dist-packages/simplejson/encoder.py", line 275, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/usr/local/lib/python2.7/dist-packages/simplejson/encoder.py", line 357, in iterencode
+    return _iterencode(o, 0)
+UnicodeDecodeError: 'utf8' codec can't decode byte 0x97 in position 3: invalid start byte
+$ /tmp/tmpiNtPAS/atm -p 3000 -i 127.0.0.1 -g -a ted -c bank.auth
+got exit: 1
+

@@ -1,0 +1,22 @@
+This test tests invalid card file handling by feeding the bank.auth file
+into the ATM as an ATM card.
+
+For correctness purposes, either 63 or 255 would have been accepted by our
+team.
+
+Instead an exception with an invalid error code was reported:
+
+CHECKING 67 MY_TEST...
+Traceback (most recent call last):
+  File "/tmp/tmplOLFhU/atm", line 556, in <module>
+    main()
+  File "/tmp/tmplOLFhU/atm", line 543, in main
+    response = process_get(account, auth, cardfile)
+  File "/tmp/tmplOLFhU/atm", line 474, in process_get
+    user_pin = crypto_utils.load_user_card(cardfile)
+  File "/tmp/tmplOLFhU/atm", line 76, in load_user_card
+    user['user_pin'] = raw_user['user_pin']
+KeyError: 'user_pin'
+$ /tmp/tmplOLFhU/atm -p 3000 -i 127.0.0.1 -g -a ted -c bank.auth
+got exit: 1
+

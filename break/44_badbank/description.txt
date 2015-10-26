@@ -1,0 +1,8 @@
+This test tests invalid card file handling by feeding the bank.auth file
+into the ATM as an ATM card.
+
+For correctness purposes, either 63 or 255 would have been accepted by our
+team.
+
+Instead a normal (0) exit code was seen.
+

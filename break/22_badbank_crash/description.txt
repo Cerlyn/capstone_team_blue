@@ -1,0 +1,19 @@
+This test tests invalid card file handling by feeding the bank.auth file
+into the ATM as an ATM card.
+
+For correctness purposes, either 63 or 255 would have been accepted by our
+team.
+
+Instead an exception was reported with an invalid exit code:
+
+Traceback (most recent call last):
+  File "atm.py", line 658, in <module>
+  File "atm.py", line 50, in main
+  File "atm.py", line 436, in runCmd
+  File "atm.py", line 330, in getBalance
+  File "atm.py", line 365, in getCardHolder
+  File "/usr/lib/python2.7/encodings/hex_codec.py", line 42, in hex_decode
+    output = binascii.a2b_hex(input)
+TypeError: Non-hexadecimal digit found
+$ /tmp/tmpj_3mfX/atm -p 3000 -i 127.0.0.1 -g -a ted -c bank.auth
+got exit: 1

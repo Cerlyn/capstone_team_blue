@@ -1,0 +1,9 @@
+{
+    "type": "correctness",
+    "target_team": 44,
+    "inputs": [
+        {"input":["-p", "%PORT%", "-i", "%IP%", "-a", "ted", "-n", "10.30"]},
+        {"input":["-p", "%PORT%", "-i", "%IP%", "-g", "-a", "ted", "-c", "bank.auth"]}
+    ]
+}
+
