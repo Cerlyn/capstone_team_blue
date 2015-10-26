@@ -1,0 +1,33 @@
+This test tests invalid bank.auth handling by feeding an ATM card
+in as if it was the authorization file.
+
+For correctness purposes, either 63 or 255 would have been accepted by our
+team.
+
+Instead an exception was reported with an invalid exit code
+
+CHECKING 118 MY_TEST...
+panic: runtime error: slice bounds out of range
+
+goroutine 16 [running]:
+runtime.panic(0x5853e0, 0x695c8f)
+        /usr/lib/go/src/pkg/runtime/panic.c:279 +0xf5
+main.(*atm).Contact(0xc208004120, 0x7fff85e2620d, 0x3, 0xc2080386c0, 0x8, 0x208, 0x3, 0x0, 0x445648, 0xc20803a028)
+        /home/bibi/src/otherteams/repos/118/build/cmd/atm/atm.go:116 +0xca3
+main.(*atm).Balance(0xc208004120, 0x7fff85e2620d, 0x3, 0xc2080386c0, 0x8, 0x208, 0x0, 0x0)
+        /home/bibi/src/otherteams/repos/118/build/cmd/atm/atm.go:96 +0xa1
+main.main()
+        /home/bibi/src/otherteams/repos/118/build/cmd/atm/main.go:110 +0xd01
+
+goroutine 19 [finalizer wait]:
+runtime.park(0x415f90, 0x699418, 0x697f29)
+        /usr/lib/go/src/pkg/runtime/proc.c:1369 +0x89
+runtime.parkunlock(0x699418, 0x697f29)
+        /usr/lib/go/src/pkg/runtime/proc.c:1385 +0x3b
+runfinq()
+        /usr/lib/go/src/pkg/runtime/mgc0.c:2644 +0xcf
+runtime.goexit()
+        /usr/lib/go/src/pkg/runtime/proc.c:1445
+$ /tmp/tmp3f91Zh/atm -p 3000 -i 127.0.0.1 -g -a ted -s ted.card
+got exit: 2
+

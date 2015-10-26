@@ -1,0 +1,21 @@
+This test tests invalid bank.auth handling by feeding an ATM card
+in as if it was the authorization file.
+
+For correctness purposes, either 63 or 255 would have been accepted by our
+team.
+
+Instead an exception was reported with an invalid exit code (1)
+
+CHECKING 3 MY_TEST...
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/runpy.py", line 162, in _run_module_as_main
+    "__main__", fname, loader, pkg_name)
+  File "/usr/lib/python2.7/runpy.py", line 72, in _run_code
+    exec code in run_globals
+  File "./atm.py", line 208, in <module>
+  File "./atm.py", line 203, in main
+  File "./atm.py", line 97, in __init__
+error.SecurityException: Missing security keys
+$ /tmp/tmpjGOSdi/atm -p 3000 -i 127.0.0.1 -g -a ted -s ted.card
+got exit: 1
+
