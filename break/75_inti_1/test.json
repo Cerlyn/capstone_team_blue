@@ -1,0 +1,9 @@
+{
+    "type": "integrity",
+    "target_team": 75,
+    "inputs": [
+      {"input":["-p", "%PORT%", "-i", "%IP%", "-a", "ted1", "-n", "20.30"]}, 
+        {"input":["-p", "%PORT%", "-i", "%IP%", "-a", "ted1", "-w", "1.30" ]},
+ {"input":["-p", "%PORT%", "-i", "%IP%", "-a", "ted1",  "-w" , "2.30"] }
+]
+}
