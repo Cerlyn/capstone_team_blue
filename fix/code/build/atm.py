@@ -14,12 +14,6 @@ import urllib3
 from common_utils import CommonUtils
 
 
-def SIGALRMhandler(signum, frame):
-    CommonUtils.atm_protocol_error_exit('TIMEOUT')
-
-signal.signal(signal.SIGALRM, SIGALRMhandler)
-
-
 class ATM:
     def __init__(self):
         self._common_utils = CommonUtils('ATM')
@@ -81,8 +75,6 @@ class ATM:
         clientcertfile = self._common_utils.get_authfilename()
         cacertfile = clientcertfile  # Last item; only cert with CA:TRUE set
 
-        signal.alarm(10)
-
         try:
             # We are using IPs, but certificates prefer names
             # Override the SSL processing to look for our desired name
@@ -95,6 +87,7 @@ class ATM:
                                                       cert_file=clientcertfile,
                                                       ssl_version=ssl.PROTOCOL_TLSv1_2,
                                                       retries=0,
+                                                      timeout=10,
                                                       assert_hostname=atmserverhostname)
             response = httpsclient.request('GET', '/atm.cgi', params)
 
@@ -102,8 +95,6 @@ class ATM:
             self.atm_protocol_error_exit('SSL Communication failure')
         except Exception:
             self.error_exit('Unknown Communication failure')
-
-        signal.alarm(0)
 
         if response.status != 200:
             self.error_exit('Remote error')
