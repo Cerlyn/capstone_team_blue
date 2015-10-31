@@ -1,0 +1,19 @@
+The Oracle bank implementation binds to the IP 127.0.0.1.
+
+Our implementation bound to 0.0.0.0 (all valid IPs).  This caused us to 
+respond back to the ATM on locally valid IPs that Oracle would not.
+
+This one-line fix changes the bank to bind to 127.0.0.1 like the Oracle.
+
+--- Longer explanation ---
+
+The Bank specification does not specify which IP to listen on, and does
+not provide a parameter to set it.  
+
+But the ATM is allowed to connect to different IP addresses.
+
+So I asked on the official IRC channel what to use, suggesting
+127.0.0.1 or 0.0.0.0 (all valid IPs).  Andrew Ruef or someone else using
+his nickname replied to use 0.0.0.0.
+
+Apparently this was not what we were expected to use.
