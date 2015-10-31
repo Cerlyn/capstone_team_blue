@@ -26,7 +26,7 @@ class CommonUtils:
         if mode == 'ATM':
             self._ipaddr = '127.0.0.1'
         else:
-            self._ipaddr = '0.0.0.0'  # Listening address per IRC clarification
+            self._ipaddr = '127.0.0.1'  # Listening address to match Oracle
         return None
 
     # Used in ATM client when protocol error or timeout occurs
