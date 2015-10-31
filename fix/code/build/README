@@ -1,0 +1,25 @@
+Build It Break It Fix It
+Coursera Capstone Course
+Team_Blue
+Fall 2015
+
+NOTES:
+1. The specification for this project implies that the executable must be 
+runnable from any directory.  This implies that our executable file, regardless
+of format, must not have any non-system dependencies regardless of where it is 
+located.
+
+To support this, we create a monolithic script with all our Python classes which
+otherwise would never be created.
+
+Typical Python, Java, etc. usage would not take this approach, but it has been
+done to comply with the contest specification. 
+
+
+2. Since the Coursera-supplied virtual machine (after updates) configures
+Linux's binfmt_misc support to recognize compiled Python files, we default to
+building a pre-compiled Python file for performance reasons.  If your test 
+environment/VM does NOT support this and spits out errors trying to run these 
+files, run "make all_plaintext" to get monolithic Python executable/source-code
+files to test with instead.
+
